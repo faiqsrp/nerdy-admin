@@ -1,58 +1,57 @@
 {
-  "include": [
-    "./vite.config.*",
-    "./src/**/*",
-    "./src/**/*.vue",
-    "./themeConfig.js"
-  ],
-  "exclude": [
-    "./dist",
-    "./node_modules"
-  ],
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "ESNext",
+    "downlevelIteration": true,
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "ESNext",
     "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     "jsx": "preserve",
     "paths": {
       "@/*": [
         "./src/*"
       ],
-      "@themeConfig": [
-        "./themeConfig.js"
+      "@core/*": [
+        "./src/@core/*"
       ],
       "@layouts/*": [
         "./src/@layouts/*"
       ],
-      "@layouts": [
-        "./src/@layouts"
+      "@menu/*": [
+        "./src/@menu/*"
       ],
-      "@core/*": [
-        "./src/@core/*"
+      "@assets/*": [
+        "./src/assets/*"
       ],
-      "@core": [
-        "./src/@core"
+      "@components/*": [
+        "./src/components/*"
       ],
-      "@images/*": [
-        "./src/assets/images/*"
+      "@configs/*": [
+        "./src/configs/*"
       ],
-      "@styles/*": [
-        "./src/assets/styles/*"
-      ],
-      "@validators": [
-        "./src/@core/utils/validators"
-      ],
-      "@db/*": [
-        "./src/plugins/fake-api/handlers/*"
-      ],
-      "@api-utils/*": [
-        "./src/plugins/fake-api/utils/*"
+      "@views/*": [
+        "./src/views/*"
       ]
-    },
-    "types": [
-      "vite/client",
-      "unplugin-vue-router/client",
-      "vite-plugin-vue-layouts/client"
-    ]
-  }
+    }
+  },
+  "include": [
+    "next.config.mjs",
+    "tailwind.config.js",
+    "**/*.js",
+    "**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
