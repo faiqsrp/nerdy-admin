@@ -1,15 +1,26 @@
 {
   "recommendations": [
+    "formulahendry.auto-close-tag",
+    "steoates.autoimport",
+    "mgmcdermott.vscode-language-babel",
+    "aaron-bond.better-comments",
+    "MohammadBaqer.better-folding",
+    "pustelto.bracketeer",
+    "streetsidesoftware.code-spell-checker",
+    "naumovs.color-highlight",
+    "mikestead.dotenv",
+    "EditorConfig.EditorConfig",
+    "usernamehw.errorlens",
     "dbaeumer.vscode-eslint",
-    "editorconfig.editorconfig",
-    "xabikos.javascriptsnippets",
-    "stylelint.vscode-stylelint",
-    "fabiospampinato.vscode-highlight",
-    "github.vscode-pull-request-github",
-    "vue.volar",
+    "eamodio.gitlens",
     "antfu.iconify",
-    "cipchk.cssrem",
-    "matijao.vue-nuxt-snippets",
-    "dongido.sync-env"
+    "xabikos.JavaScriptSnippets",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "esbenp.prettier-vscode",
+    "yoavbls.pretty-ts-errors",
+    "jasonnutter.search-node-modules",
+    "stylelint.vscode-stylelint",
+    "styled-components.vscode-styled-components"
   ]
 }
