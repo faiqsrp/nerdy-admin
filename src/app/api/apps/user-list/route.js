@@ -14,3 +14,5 @@ import { db } from '@/fake-db/apps/userList'
 export async function GET() {
   return NextResponse.json(db)
 }
+
+// app/api/users/route.js

@@ -91,24 +91,33 @@ const Login = ({ mode }) => {
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const onSubmit = async data => {
-    const res = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false
-    })
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+           email: data.email, 
+           password: data.password
+          })
+      })
+  
+      if (res.ok) {
+        const responseData = await res.json()
+        const token = responseData.data?.token;
+        
+        localStorage.setItem('authToken', token)
 
-    if (res && res.ok && res.error === null) {
-      // Vars
-      const redirectURL = searchParams.get('redirectTo') ?? '/'
-
-      router.replace(getLocalizedUrl(redirectURL, locale))
-    } else {
-      if (res?.error) {
-        console.log(res.error)
-        const error = JSON.parse(res.error)
-
-        setErrorState(error)
+        const redirectURL = searchParams.get('redirectTo') ?? '/'
+        router.replace(getLocalizedUrl(redirectURL, locale))
+      } else {
+        const errorData = await res.json()
+        setErrorState(errorData)
       }
+    } 
+    catch (error) {
+      setErrorState({ message: ['Email or Password is invalid'] })
     }
   }
 
@@ -140,12 +149,12 @@ const Login = ({ mode }) => {
             <Typography variant='h4'>{`Welcome to ${themeConfig.templateName}!👋🏻`}</Typography>
             <Typography>Please sign-in to your account and start the adventure</Typography>
           </div>
-          <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
+          {/* <Alert icon={false} className='bg-[var(--mui-palette-primary-lightOpacity)]'>
             <Typography variant='body2' color='primary'>
               Email: <span className='font-medium'>admin@materialize.com</span> / Pass:{' '}
               <span className='font-medium'>admin</span>
             </Typography>
-          </Alert>
+          </Alert> */}
 
           <form
             noValidate
@@ -220,7 +229,7 @@ const Login = ({ mode }) => {
                 Forgot password?
               </Typography>
             </div>
-            <Button fullWidth variant='contained' type='submit'>
+            <Button  fullWidth variant='contained' type='submit'>
               Log In
             </Button>
             <div className='flex justify-center items-center flex-wrap gap-2'>
