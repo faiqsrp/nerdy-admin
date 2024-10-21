@@ -44,11 +44,16 @@ jobs:
           exit 1
         fi
 
-    # Start SSH agent and add private key from GitHub Secrets
+    # Start SSH agent and add key
     - name: Start SSH agent and add key
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.AWS_PEM_KEY }}
+
+    # Add EC2 host key to known hosts
+    - name: Add EC2 host to known hosts
+      run: |
+        ssh-keyscan -H ec2-16-16-165-205.eu-north-1.compute.amazonaws.com >> ~/.ssh/authorized_keys
 
     # Copy build to EC2 server and restart PM2 process
     - name: Deploy to EC2
