@@ -44,7 +44,7 @@ jobs:
           exit 1
         fi
 
-    # Use SSH Agent and add the PEM key
+    # Start SSH agent and add private key from GitHub Secrets
     - name: Start SSH agent and add key
       uses: webfactory/ssh-agent@v0.7.0
       with:
