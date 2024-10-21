@@ -1,4 +1,4 @@
-name: Deploy Next.js App to EC2
+name: Deploy Next.js App
 
 on:
   push:
@@ -7,47 +7,55 @@ on:
       - stage
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
+      # Step 2: Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # Step 3: Install dependencies
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
+      # Step 4: Build the Next.js application
       - name: Build Next.js app
-        run: npm run build
+        run: yarn build
 
-      - name: Prepare SSH key
+      # Step 5: Copy .next folder to EC2 instance
+      - name: Deploy .next folder to EC2
+        env:
+          AWS_PEM_KEY: ${{ secrets.AWS_PEM_KEY }}
         run: |
-          echo "${{ secrets.AWS_PEM_KEY }}" > nerdyaws.pem
+          # Determine the destination based on the branch
+          if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+            TARGET_FOLDER="/var/www/html/dev"
+            PM2_PROCESS="dashboard-dev"
+          elif [ "${{ github.ref }}" == "refs/heads/stage" ]; then
+            TARGET_FOLDER="/var/www/html/staging"
+            PM2_PROCESS="dashboard-stage"
+          fi
+          
+          # Save the PEM file
+          echo "$AWS_PEM_KEY" > nerdyaws.pem
           chmod 600 nerdyaws.pem
 
-      - name: Add EC2 to known hosts
-        run: ssh-keyscan -H ec2-16-16-165-205.eu-north-1.compute.amazonaws.com >> ~/.ssh/known_hosts
+          # Copy .next folder to the EC2 instance
+          scp -i nerdyaws.pem -r .next ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com:$TARGET_FOLDER
 
-      - name: Copy .next folder to EC2
+      # Step 6: Restart the PM2 process
+      - name: Restart PM2 process
+        env:
+          AWS_PEM_KEY: ${{ secrets.AWS_PEM_KEY }}
         run: |
-          if [[ ${{ github.ref_name }} == "dev" ]]; then
-            TARGET_DIR="/var/www/html/dev"
-            PM2_PROCESS="dashboard-dev"
-          elif [[ ${{ github.ref_name }} == "stage" ]]; then
-            TARGET_DIR="/var/www/html/staging"
-            PM2_PROCESS="dashboard-stage"
-          else
-            echo "This branch is not configured for deployment."
-            exit 1
-          fi
-
-          scp -i nerdyaws.pem -r .next ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com:$TARGET_DIR
-          ssh -i nerdyaws.pem ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com "pm2 restart $PM2_PROCESS"
-
-      - name: Clean up SSH key
-        run: rm nerdyaws.pem
+          # Restart the appropriate PM2 process
+          ssh -i nerdyaws.pem ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com << EOF
+            pm2 restart $PM2_PROCESS
+          EOF
