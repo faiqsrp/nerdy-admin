@@ -11,51 +11,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js environment
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+    # Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: yarn install
+    # Install dependencies
+    - name: Install dependencies
+      run: npm install
 
-      # Step 4: Build the Next.js application
-      - name: Build Next.js app
-        run: yarn build
+    # Build the Next.js application
+    - name: Build Next.js app
+      run: npm run build
 
-      # Step 5: Copy .next folder to EC2 instance
-      - name: Deploy .next folder to EC2
-        env:
-          AWS_PEM_KEY: ${{ secrets.AWS_PEM_KEY }}
-        run: |
-          # Determine the destination based on the branch
-          if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
-            TARGET_FOLDER="/var/www/html/dev"
-            PM2_PROCESS="dashboard-dev"
-          elif [ "${{ github.ref }}" == "refs/heads/stage" ]; then
-            TARGET_FOLDER="/var/www/html/staging"
-            PM2_PROCESS="dashboard-stage"
-          fi
-          
-          # Save the PEM file
-          echo "$AWS_PEM_KEY" > nerdyaws.pem
-          chmod 600 nerdyaws.pem
+    # Determine target directory and PM2 process based on the branch
+    - name: Set variables based on branch
+      id: set-vars
+      run: |
+        if [[ ${{ github.ref }} == "refs/heads/dev" ]]; then
+          echo "DEPLOY_DIR=/var/www/html/dev" >> $GITHUB_ENV
+          echo "PM2_PROCESS=dashboard-dev" >> $GITHUB_ENV
+        elif [[ ${{ github.ref }} == "refs/heads/stage" ]]; then
+          echo "DEPLOY_DIR=/var/www/html/staging" >> $GITHUB_ENV
+          echo "PM2_PROCESS=dashboard-stage" >> $GITHUB_ENV
+        else
+          echo "This branch is not set for deployment"
+          exit 1
+        fi
 
-          # Copy .next folder to the EC2 instance
-          scp -i nerdyaws.pem -r .next ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com:$TARGET_FOLDER
+    # Use SSH Agent and add the PEM key
+    - name: Start SSH agent and add key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.AWS_PEM_KEY }}
 
-      # Step 6: Restart the PM2 process
-      - name: Restart PM2 process
-        env:
-          AWS_PEM_KEY: ${{ secrets.AWS_PEM_KEY }}
-        run: |
-          # Restart the appropriate PM2 process
-          ssh -i nerdyaws.pem ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com << EOF
-            pm2 restart $PM2_PROCESS
-          EOF
+    # Copy build to EC2 server and restart PM2 process
+    - name: Deploy to EC2
+      run: |
+        # Upload the built .next folder to the target directory on EC2
+        scp -r .next ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com:${{ env.DEPLOY_DIR }}
+
+        # SSH into the EC2 instance and restart the PM2 process
+        ssh ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com << EOF
+          cd ${{ env.DEPLOY_DIR }}
+          pm2 restart ${{ env.PM2_PROCESS }}
+        EOF
