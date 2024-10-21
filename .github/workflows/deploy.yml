@@ -1,0 +1,50 @@
+name: Deploy Next.js App to EC2
+
+on:
+  push:
+    branches:
+      - dev
+      - stage
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Prepare SSH key
+        run: |
+          echo "${{ secrets.AWS_PEM_KEY }}" > nerdyaws.pem
+          chmod 600 nerdyaws.pem
+
+      - name: Copy .next folder to EC2
+        run: |
+          if [[ ${{ github.ref_name }} == "dev" ]]; then
+            TARGET_DIR="/var/www/html/dev"
+            PM2_PROCESS="dashboard-dev"
+          elif [[ ${{ github.ref_name }} == "stage" ]]; then
+            TARGET_DIR="/var/www/html/staging"
+            PM2_PROCESS="dashboard-stage"
+          else
+            echo "This branch is not configured for deployment."
+            exit 1
+          fi
+
+          scp -i nerdyaws.pem -r .next ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com:$TARGET_DIR
+          ssh -i nerdyaws.pem ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com "pm2 restart $PM2_PROCESS"
+
+      - name: Clean up SSH key
+        run: rm nerdyaws.pem
