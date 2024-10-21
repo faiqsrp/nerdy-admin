@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '16'
 
       - name: Install dependencies
         run: npm install
@@ -29,6 +29,9 @@ jobs:
         run: |
           echo "${{ secrets.AWS_PEM_KEY }}" > nerdyaws.pem
           chmod 600 nerdyaws.pem
+
+      - name: Add EC2 to known hosts
+        run: ssh-keyscan -H ec2-16-16-165-205.eu-north-1.compute.amazonaws.com >> ~/.ssh/known_hosts
 
       - name: Copy .next folder to EC2
         run: |
