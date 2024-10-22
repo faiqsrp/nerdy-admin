@@ -54,7 +54,7 @@ export const authOptions = {
              * user data below. Below return statement will set the user object in the token and the same is set in
              * the session which will be accessible all over the app.
              */
-            return data
+            return data.data
           }
 
           return null
@@ -103,19 +103,28 @@ export const authOptions = {
      */
     async jwt({ token, user }) {
       if (user) {
-        /*
-         * For adding custom parameters to user in session, we first need to add those parameters
-         * in token which then will be available in the `session()` callback
-         */
-        token.name = user.name
+        if (user) {
+          token.id = user.id
+          token.name = user.name
+          token.email = user.email
+          token.role = user.roleName
+          token.isAdmin = user.isAdmin
+          token.token = user.token // ** Add the token from the API response
+        }
+
+        return token
       }
 
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
-        // ** Add custom params to user in session which are added in `jwt()` callback via `token` parameter
+      if (token) {
+        session.user.id = token.id
         session.user.name = token.name
+        session.user.email = token.email
+        session.user.role = token.role
+        session.user.isAdmin = token.isAdmin
+        session.user.token = token.token // ** Add the token for API access
       }
 
       return session
