@@ -65,7 +65,7 @@ const Register = ({ mode }) => {
   // Submit Handler
   const handleRegister = async (event) => {
     event.preventDefault()
-    setErrorState(null) 
+    setErrorState(null)
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/auth/register`, {
@@ -78,9 +78,11 @@ const Register = ({ mode }) => {
 
       if (res.ok) {
         const redirectTo = '/en/login'
+
         router.replace(redirectTo)
       } else {
         const errorData = await res.json()
+
         setErrorState(errorData.message || 'Registration failed. Please try again.')
       }
     } catch (error) {
@@ -121,14 +123,14 @@ const Register = ({ mode }) => {
             <Typography className='mbs-1'>Make your app management easy and fun!</Typography>
           </div>
           <form noValidate autoComplete='off' onSubmit={handleRegister} className='flex flex-col gap-5'>
-            <TextField autoFocus fullWidth label='Username' onChange={(e) => setName(e.target.value)} 
+            <TextField autoFocus fullWidth label='Username' onChange={(e) => setName(e.target.value)}
             />
-            <TextField fullWidth label='Email' onChange={(e) => setEmail(e.target.value)} 
+            <TextField fullWidth label='Email' onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
               fullWidth
               label='Password'
-              onChange={(e) => setPassword(e.target.value)} 
+              onChange={(e) => setPassword(e.target.value)}
               type={isPasswordShown ? 'text' : 'password'}
               InputProps={{
                 endAdornment: (
