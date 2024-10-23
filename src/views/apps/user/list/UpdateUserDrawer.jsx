@@ -1,3 +1,5 @@
+"use client"; 
+
 // React Imports
 import { useState } from 'react'
 
@@ -33,11 +35,12 @@ const initialData = {
   employeeId: ''
 }
 
-const AddUserDrawer = props => {
+const UpdateUserDrawer = props => {
   // Props
   const { open, handleClose, userData, setData } = props
 
-  console.log(handleClose, "add")
+  console.log(handleClose, "update")
+
   // States
   const [formData, setFormData] = useState(initialData)
   const [loading, setLoading] = useState(true)
@@ -120,7 +123,6 @@ const AddUserDrawer = props => {
 
   const handleReset = () => {
     handleClose()
-    setFormData(initialData)
   }
 
   return (
@@ -367,7 +369,7 @@ const AddUserDrawer = props => {
             <Button variant='contained' type='submit'>
               Submit
             </Button>
-            <Button variant='outlined' color='error' type='reset' onClick={() => handleReset()}>
+            <Button variant='outlined' color='error' type='reset' onClick={handleReset}>
               Cancel
             </Button>
           </div>
@@ -377,4 +379,4 @@ const AddUserDrawer = props => {
   )
 }
 
-export default AddUserDrawer
+export default UpdateUserDrawer
