@@ -1,0 +1,68 @@
+name: Deploy Next.js App
+
+on:
+  push:
+    branches:
+      - dev
+      - stage
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    # Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Build the Next.js application
+    - name: Build Next.js app
+      run: npm run build
+
+    # Determine target directory and PM2 process based on the branch
+    - name: Set variables based on branch
+      id: set-vars
+      run: |
+        if [[ ${{ github.ref }} == "refs/heads/dev" ]]; then
+          echo "DEPLOY_DIR=/var/www/html/dev" >> $GITHUB_ENV
+          echo "PM2_PROCESS=dashboard-dev" >> $GITHUB_ENV
+        elif [[ ${{ github.ref }} == "refs/heads/stage" ]]; then
+          echo "DEPLOY_DIR=/var/www/html/staging" >> $GITHUB_ENV
+          echo "PM2_PROCESS=dashboard-stage" >> $GITHUB_ENV
+        else
+          echo "This branch is not set for deployment"
+          exit 1
+        fi
+
+    # Start SSH agent and add key
+    - name: Start SSH agent and add key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.AWS_PEM_KEY }}
+
+    # Add EC2 host key to known hosts
+    - name: Add EC2 host to known hosts
+      run: |
+        ssh-keyscan -H ec2-16-16-165-205.eu-north-1.compute.amazonaws.com >> ~/.ssh/authorized_keys
+
+    # Copy build to EC2 server and restart PM2 process
+    - name: Deploy to EC2
+      run: |
+        # Upload the built .next folder to the target directory on EC2
+        scp -r .next ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com:${{ env.DEPLOY_DIR }}
+
+        # SSH into the EC2 instance and restart the PM2 process
+        ssh ubuntu@ec2-16-16-165-205.eu-north-1.compute.amazonaws.com << EOF
+          cd ${{ env.DEPLOY_DIR }}
+          pm2 restart ${{ env.PM2_PROCESS }}
+        EOF

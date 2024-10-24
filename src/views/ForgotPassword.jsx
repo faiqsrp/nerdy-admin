@@ -1,4 +1,6 @@
 'use client'
+// React Imports
+import { useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -36,6 +38,9 @@ const ForgotPasswordV2 = ({ mode }) => {
   const { settings } = useSettings()
   const { lang: locale } = useParams()
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const [email, setEmail] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const characterIllustration = useImageVariant(
     mode,
@@ -44,6 +49,32 @@ const ForgotPasswordV2 = ({ mode }) => {
     borderedLightIllustration,
     borderedDarkIllustration
   )
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setSuccessMessage('')
+    setErrorMessage('')
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/auth/forgetPassword`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      if (response.ok) {
+        const responseMessage = await response.json()
+        setSuccessMessage(responseMessage.message || 'Password reset link sent successfully.')
+      } else {
+        const errorData = await response.json()
+        setErrorMessage(errorData.message || 'Failed to send password reset email. Please try again.')
+      }
+    } catch (error) {
+      setErrorMessage('An error occurred while processing your request. Please try again later.')
+    }
+  }
 
   return (
     <div className='flex bs-full justify-center'>
@@ -78,8 +109,8 @@ const ForgotPasswordV2 = ({ mode }) => {
               Enter your email and we&#39;ll send you instructions to reset your password
             </Typography>
           </div>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()} className='flex flex-col gap-5'>
-            <TextField autoFocus fullWidth label='Email' />
+          <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-5'>
+            <TextField autoFocus fullWidth label='Email' onChange={(e) => setEmail(e.target.value)} />
             <Button fullWidth variant='contained' type='submit'>
               Send reset link
             </Button>

@@ -195,8 +195,8 @@ const VerticalMenu = ({ dictionary, scrollMenu }) => {
                 {dictionary['navigation'].notAuthorized401}
               </MenuItem>
             </SubMenu>
-          </SubMenu>
-          <SubMenu label={dictionary['navigation'].authPages} icon={<i className='ri-shield-keyhole-line' />}>
+          </SubMenu> */}
+          {/* <SubMenu label={dictionary['navigation'].authPages} icon={<i className='ri-shield-keyhole-line' />}>
             <SubMenu label={dictionary['navigation'].login}>
               <MenuItem href={`/${locale}/pages/auth/login-v1`} target='_blank'>
                 {dictionary['navigation'].loginV1}
@@ -247,47 +247,10 @@ const VerticalMenu = ({ dictionary, scrollMenu }) => {
               <MenuItem href={`/${locale}/pages/auth/two-steps-v2`} target='_blank'>
                 {dictionary['navigation'].twoStepsV2}
               </MenuItem>
-            </SubMenu>
-          </SubMenu>
-          <SubMenu label={dictionary['navigation'].wizardExamples} icon={<i className='ri-git-commit-line' />}>
-            <MenuItem href={`/${locale}/pages/wizard-examples/checkout`}>{dictionary['navigation'].checkout}</MenuItem>
-            <MenuItem href={`/${locale}/pages/wizard-examples/property-listing`}>
-              {dictionary['navigation'].propertyListing}
-            </MenuItem>
-            <MenuItem href={`/${locale}/pages/wizard-examples/create-deal`}>
-              {dictionary['navigation'].createDeal}
-            </MenuItem>
-          </SubMenu>
-          <MenuItem href={`/${locale}/pages/dialog-examples`} icon={<i className='ri-tv-2-line' />}>
-            {dictionary['navigation'].dialogExamples}
-          </MenuItem>
-          <SubMenu label={dictionary['navigation'].widgetExamples} icon={<i className='ri-bar-chart-box-line' />}>
-            <MenuItem href={`/${locale}/pages/widget-examples/basic`}>{dictionary['navigation'].basic}</MenuItem>
-            <MenuItem href={`/${locale}/pages/widget-examples/advanced`}>{dictionary['navigation'].advanced}</MenuItem>
-            <MenuItem href={`/${locale}/pages/widget-examples/statistics`}>
-              {dictionary['navigation'].statistics}
-            </MenuItem>
-            <MenuItem href={`/${locale}/pages/widget-examples/charts`}>{dictionary['navigation'].charts}</MenuItem>
-            <MenuItem href={`/${locale}/pages/widget-examples/gamification`}>
-              {dictionary['navigation'].gamification}
-            </MenuItem>
-            <MenuItem href={`/${locale}/pages/widget-examples/actions`}>{dictionary['navigation'].actions}</MenuItem>
-          </SubMenu>
-        </MenuSection>
-        <MenuSection label={dictionary['navigation'].formsAndTables}>
-          <MenuItem href={`/${locale}/forms/form-layouts`} icon={<i className='ri-layout-4-line' />}>
-            {dictionary['navigation'].formLayouts}
-          </MenuItem>
-          <MenuItem href={`/${locale}/forms/form-validation`} icon={<i className='ri-checkbox-multiple-line' />}>
-            {dictionary['navigation'].formValidation}
-          </MenuItem>
-          <MenuItem href={`/${locale}/forms/form-wizard`} icon={<i className='ri-git-commit-line' />}>
-            {dictionary['navigation'].formWizard}
-          </MenuItem>
-          <MenuItem href={`/${locale}/react-table`} icon={<i className='ri-table-alt-line' />}>
-            {dictionary['navigation'].reactTable}
-          </MenuItem>
-          <MenuItem
+            </SubMenu> */}
+          {/* </SubMenu> */}
+          {/* ZZZ */}
+          {/* <MenuItem
             href={`${process.env.NEXT_PUBLIC_DOCS_URL}/docs/user-interface/form-elements`}
             suffix={<i className='ri-external-link-line text-xl' />}
             target='_blank'

@@ -1,17 +1,17 @@
 // Next Imports
 import { NextResponse } from 'next/server'
- 
+
+
 export async function POST(req) {
-  const { email, password } = await req.json()
-  console.log(req.body)
+  const { email, password, name } = await req.json()
 
   try {
-    const Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/auth/login`, {
+    const Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, name }),
     })
 
     if (Response.ok) {
@@ -19,11 +19,12 @@ export async function POST(req) {
       const { password: _, ...filteredUserData } = userData
 
       return NextResponse.json(filteredUserData)
+      
     } else {
       const errorData = await Response.json()
       return NextResponse.json(
         {
-          message: errorData.message || ['Email or Password is invalid'],
+          message: errorData.message || ['Registration failed. Please try again.'],
         },
         {
           status: Response.status,
@@ -33,13 +34,14 @@ export async function POST(req) {
     }
   } catch (error) {
     return NextResponse.json(
-        {
-          message: ['Email or Password is invalid']
-        },
-        {
-          status: 401,
-          statusText: 'Unauthorized Access'
-        }
+      {
+        message: ['An error occurred while processing your registration request'],
+      },
+      {
+        status: 500,
+        statusText: 'Internal Server Error',
+      }
     )
+  }
 }
-}
+

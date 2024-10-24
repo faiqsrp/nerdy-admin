@@ -35,7 +35,7 @@ const shortcuts = [
     icon: 'ri-file-list-3-line',
     title: 'Invoice App',
     subtitle: 'Manage Accounts'
-  },
+  }, 
   {
     url: '/apps/user/list',
     icon: 'ri-user-3-line',
