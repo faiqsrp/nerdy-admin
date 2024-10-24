@@ -110,6 +110,8 @@ const columnHelper = createColumnHelper()
 const UserListTable = ({ tableData }) => {
   // States
   const [addUserOpen, setAddUserOpen] = useState(false)
+  const [editUserOpen, setEditUserOpen] = useState(false)
+  const [viewUserOpen, setViewUserOpen] = useState(false)
   const [updateUserOpen, setUpdateUserOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState({})
   const [data, setData] = useState([])
@@ -130,7 +132,6 @@ const UserListTable = ({ tableData }) => {
   useEffect(() => {
       const fetchAllUsers = async () => {
         try {
-          console.log("Session Token:", session?.user?.token);
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/users/AllUsers`, {
             method: 'GET',
             headers: {
@@ -145,23 +146,19 @@ const UserListTable = ({ tableData }) => {
           }
 
           const data = await response.json();
-          console.log('Data:', data);
           setData(data.data);
           // setFilteredData(data); 
           setLoading(false);
 
           return NextResponse.json(data);
         } catch (error) {
-          console.error('Error fetching users:', error);
           return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
       }
       fetchAllUsers();
     }, [session?.user]);
 
-    const deleteUser = async () => {
-      console.log('deleteUser called...');
-    
+    const deleteUser = async () => {    
       try {
         const searchParams = new URLSearchParams(window.location.search);
         const id = searchParams.get('id');
@@ -177,30 +174,18 @@ const UserListTable = ({ tableData }) => {
              token: `${session?.user?.token}`, 
           },
         });
+        console.log('Response:', response.data);
     
         if (!response.ok) {
           const errorData = await response.json();
           return NextResponse.json({ error: errorData.message || 'Failed to delete user' }, { status: response.status });
         }
     
-        console.log('Response:', response.data);
         return NextResponse.json(response.data, { status: 200 });
       } catch (error) {
-        console.error('Error deleting user:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
       }
     };
-    
-
-    // const handleViewUser = (user) => {
-    //   setViewUserId(user.id);   
-    //   setOpenViewDrawer(true);  
-    // };
-  
-    // const handleUpdateUser = (user) => {
-    //   setUserData(user);        
-    //   setOpenUpdateDrawer(true); 
-    // };
 
   const columns = useMemo(
     () => [
@@ -229,17 +214,6 @@ const UserListTable = ({ tableData }) => {
       columnHelper.accessor('uniqueID', {
         header: 'Employee ID',
         cell: ({ row }) => <Typography>{row.original.uniqueID ? row.original.uniqueID : 'N/A'}</Typography>
-        // cell: ({ row }) => (
-        //   <div className='flex items-center gap-3'>
-        //     {getAvatar({ avatar: row.original.avatar, fullName: row.original.fullName })}
-        //     <div className='flex flex-col'>
-        //       <Typography color='text.primary' className='font-medium'>
-        //         {row.original.fullName}
-        //       </Typography>
-        //       <Typography variant='body2'>{row.original.username}</Typography>
-        //     </div>
-        //   </div>
-        // )
       }),
       columnHelper.accessor('name', {
         header: 'Name',
@@ -248,17 +222,6 @@ const UserListTable = ({ tableData }) => {
       columnHelper.accessor('roleName', {
         header: 'Role',
         cell: ({ row }) => <Typography>{row.original.roleName}</Typography>
-        // cell: ({ row }) => (
-        //   <div className='flex items-center gap-2'>
-        //     <Icon
-        //         className={classnames('text-[22px]', userRoleObj[row.original.roleName]?.icon || '')}
-        //       sx={{ color: `var(--mui-palette-${userRoleObj[row.original.roleName]?.color || 'default'}-main)` }}
-        //     />
-        //     <Typography className='capitalize' color='text.primary'>
-        //       {row.original.roleName}
-        //     </Typography>
-        //   </div>
-        // )
       }),
       columnHelper.accessor('email', {
         header: 'Email Address',
@@ -291,17 +254,6 @@ const UserListTable = ({ tableData }) => {
             {row.original.isActive}
           </Typography>
         )
-        // cell: ({ row }) => (
-        //   <div className='flex items-center gap-3'>
-        //     <Chip
-        //       variant='tonal'
-        //       label={row.original.isActive}
-        //       size='small'
-        //       color={userStatusObj[row.original.isActive]}
-        //       className='capitalize'
-        //     />
-        //   </div>
-        // )
       }),
       columnHelper.accessor('action', {
         header: 'Action',
@@ -330,26 +282,23 @@ const UserListTable = ({ tableData }) => {
               onClick={() => {
                 setOpenUpdateDrawer(true); 
                 setUpdateUserOpen(row.original.id); 
-
               }}>
             <i className='ri-edit-box-line text-textSecondary' />
             </IconButton>
-      
             {/* Option menu */}
             <OptionMenu
               iconClassName='text-textSecondary'
               options={[
                 {
                   text: 'Download',
-                  icon: 'ri-edit-box-line',
+                  icon: 'ri-download-box-line',
                 },
               ]}
             />
           </div>
         ),
         enableSorting: false,
-      })
-      
+      })     
       
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -372,7 +321,7 @@ const UserListTable = ({ tableData }) => {
       }
     },
     enableRowSelection: true, //enable row selection for all rows
-    // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
+    // enableRowSelection: row => row.original.age > 18, 
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
@@ -403,7 +352,6 @@ const UserListTable = ({ tableData }) => {
     <>
       <Card>
         <CardHeader title='Filters' className='pbe-4' />
-        {/* <TableFilters setData={setFilteredData} tableData={data} /> */}
         <Divider />
         <div className='flex justify-between gap-4 p-5 flex-col items-start sm:flex-row sm:items-center'>
           <Button
@@ -510,7 +458,7 @@ const UserListTable = ({ tableData }) => {
       />
       <UpdateUserDrawer
         open={openUpdateDrawer}
-        handleClose={() => setUpdateUserOpen(false)}
+        handleClose={() => setUpdateUserOpen(!editUserOpen)}
         user={userData}
       />
     </>

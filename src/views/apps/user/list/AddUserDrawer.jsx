@@ -101,22 +101,7 @@ const AddUserDrawer = props => {
     }  
     createUser(newUser)
   }
-    
 
-    // setData([...(userData ?? []), newUser])
-    // handleClose()
-    // setFormData(initialData)
-    // resetForm({
-    //   email: '',
-    //   password: '',
-    //   name: '',
-    //   doj: '',
-    //   manager: '',
-    //   company: '',
-    //   department: '',
-    //   country: '',
-    //   employeeId: ''
-    // })
 
   const handleReset = () => {
     handleClose()
@@ -275,94 +260,6 @@ const AddUserDrawer = props => {
               />
             )}
           />
-          {/* <FormControl fullWidth>
-            <InputLabel id='country' error={Boolean(errors.role)}>
-              Select Role
-            </InputLabel>
-            <Controller
-              name='role'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select label='Select Role' {...field} error={Boolean(errors.role)}>
-                  <MenuItem value='admin'>Admin</MenuItem>
-                  <MenuItem value='author'>Author</MenuItem>
-                  <MenuItem value='editor'>Editor</MenuItem>
-                  <MenuItem value='maintainer'>Maintainer</MenuItem>
-                  <MenuItem value='subscriber'>Subscriber</MenuItem>
-                </Select>
-              )}
-            />
-            {errors.role && <FormHelperText error>This field is required.</FormHelperText>} */}
-          {/* </FormControl>
-          <FormControl fullWidth>
-            <InputLabel id='country' error={Boolean(errors.plan)}>
-              Select Plan
-            </InputLabel>
-            <Controller
-              name='plan'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select label='Select Plan' {...field} error={Boolean(errors.plan)}>
-                  <MenuItem value='basic'>Basic</MenuItem>
-                  <MenuItem value='company'>Company</MenuItem>
-                  <MenuItem value='enterprise'>Enterprise</MenuItem>
-                  <MenuItem value='team'>Team</MenuItem>
-                </Select>
-              )}
-            />
-            {errors.plan && <FormHelperText error>This field is required.</FormHelperText>} */}
-          {/* </FormControl> */}
-          {/* <FormControl fullWidth>
-            <InputLabel id='country' error={Boolean(errors.status)}>
-              Select Status
-            </InputLabel>
-            <Controller
-              name='status'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <Select label='Select Status' {...field} error={Boolean(errors.status)}>
-                  <MenuItem value='pending'>Pending</MenuItem>
-                  <MenuItem value='active'>Active</MenuItem>
-                  <MenuItem value='inactive'>Inactive</MenuItem>
-                </Select>
-              )}
-            />
-            {errors.status && <FormHelperText error>This field is required.</FormHelperText>}
-          </FormControl> */}
-          {/* <TextField
-            label='Company'
-            fullWidth
-            placeholder='Company PVT LTD'
-            value={formData.company}
-            onChange={e => setFormData({ ...formData, company: e.target.value })}
-          /> */}
-          {/* <FormControl fullWidth>
-            <InputLabel id='country'>Select Country</InputLabel>
-            <Select
-              fullWidth
-              id='country'
-              value={formData.country}
-              onChange={e => setFormData({ ...formData, country: e.target.value })}
-              label='Select Country'
-              labelId='country'
-            >
-              <MenuItem value='India'>India</MenuItem>
-              <MenuItem value='USA'>USA</MenuItem>
-              <MenuItem value='Australia'>Australia</MenuItem>
-              <MenuItem value='Germany'>Germany</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            label='Contact'
-            type='number'
-            fullWidth
-            placeholder='(397) 294-5153'
-            value={formData.contact}
-            onChange={e => setFormData({ ...formData, contact: e.target.value })}
-          /> */}
           <div className='flex items-center gap-4'>
             <Button variant='contained' type='submit'>
               Submit
