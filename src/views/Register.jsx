@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 // MUI Imports
 import Typography from '@mui/material/Typography'
@@ -33,6 +33,10 @@ import { getLocalizedUrl } from '@/utils/i18n'
 const Register = ({ mode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorState, setErrorState] = useState(null);
 
   // Vars
   const darkImg = '/images/pages/auth-v2-mask-2-dark.png'
@@ -46,6 +50,7 @@ const Register = ({ mode }) => {
   const { settings } = useSettings()
   const { lang: locale } = useParams()
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const router = useRouter()
 
   const characterIllustration = useImageVariant(
     mode,
@@ -56,6 +61,34 @@ const Register = ({ mode }) => {
   )
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
+
+  // Submit Handler
+  const handleRegister = async (event) => {
+    event.preventDefault()
+    setErrorState(null)
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password, name })
+      })
+
+      if (res.ok) {
+        const redirectTo = '/en/login'
+
+        router.replace(redirectTo)
+      } else {
+        const errorData = await res.json()
+
+        setErrorState(errorData.message || 'Registration failed. Please try again.')
+      }
+    } catch (error) {
+      setErrorState('An error occurred while processing your registration request')
+    }
+  }
 
   return (
     <div className='flex bs-full justify-center'>
@@ -89,12 +122,15 @@ const Register = ({ mode }) => {
             <Typography variant='h4'>Adventure starts here 🚀</Typography>
             <Typography className='mbs-1'>Make your app management easy and fun!</Typography>
           </div>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()} className='flex flex-col gap-5'>
-            <TextField autoFocus fullWidth label='Username' />
-            <TextField fullWidth label='Email' />
+          <form noValidate autoComplete='off' onSubmit={handleRegister} className='flex flex-col gap-5'>
+            <TextField autoFocus fullWidth label='Username' onChange={(e) => setName(e.target.value)}
+            />
+            <TextField fullWidth label='Email' onChange={(e) => setEmail(e.target.value)}
+            />
             <TextField
               fullWidth
               label='Password'
+              onChange={(e) => setPassword(e.target.value)}
               type={isPasswordShown ? 'text' : 'password'}
               InputProps={{
                 endAdornment: (

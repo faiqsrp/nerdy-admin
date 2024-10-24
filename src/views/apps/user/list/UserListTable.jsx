@@ -113,6 +113,7 @@ const UserListTable = ({ tableData }) => {
   // Hooks
   const { lang: locale } = useParams()
 
+
   const columns = useMemo(
     () => [
       {

@@ -124,7 +124,7 @@ export const db = {
     {
       id: 14,
       fullName: 'Cecilia Shockey',
-      role: 'Database administrator',
+      role: 'Database istrator',
       about: 'Cake pie jelly jelly beans. Marzipan lemon drops halvah cake. Pudding cookie lemon drops icing',
       avatarColor: 'secondary',
       status: 'busy'
@@ -174,7 +174,7 @@ export const db = {
           }
         },
         {
-          message: 'Hey John, I am looking for the best admin template. Could you please help me to find it out?',
+          message: 'Hey John, I am looking for the best  template. Could you please help me to find it out?',
           time: 'Mon Dec 10 2018 07:45:23 GMT+0000 (GMT)',
           senderId: 2
         },
