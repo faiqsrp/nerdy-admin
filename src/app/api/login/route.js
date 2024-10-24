@@ -1,6 +1,6 @@
 // Next Imports
 import { NextResponse } from 'next/server'
-
+ 
 export async function POST(req) {
   const { email, password } = await req.json()
   console.log(req.body)

@@ -1,3 +1,5 @@
+"use client"; 
+
 // React Imports
 import { useState } from 'react'
 
@@ -33,7 +35,7 @@ const initialData = {
   employeeId: ''
 }
 
-const AddUserDrawer = props => {
+const UpdateUserDrawer = props => {
   // Props
   const { open, handleClose, userData, setData } = props
 
@@ -55,7 +57,7 @@ const AddUserDrawer = props => {
   const createUser = async newUser => {
     setLoading(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/users/adduser`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/users/update/${id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,9 +74,7 @@ const AddUserDrawer = props => {
       }
 
       const result = await response.json()
-      console.log('User created successfully:', result)
 
-      // Update the user data state with the newly created user
       setData([...(userData ?? []), result])
       setLoading(false)
       handleClose()
@@ -100,11 +100,10 @@ const AddUserDrawer = props => {
     }  
     createUser(newUser)
   }
-
+    
 
   const handleReset = () => {
     handleClose()
-    setFormData(initialData)
   }
 
   return (
@@ -117,7 +116,7 @@ const AddUserDrawer = props => {
       sx={{ '& .MuiDrawer-paper': { width: { xs: 300, sm: 400 } } }}
     >
       <div className='flex items-center justify-between pli-5 plb-4'>
-        <Typography variant='h5'>Add New User</Typography>
+        <Typography variant='h5'>Update User Details</Typography>
         <IconButton size='small' onClick={handleReset}>
           <i className='ri-close-line text-2xl' />
         </IconButton>
@@ -261,9 +260,9 @@ const AddUserDrawer = props => {
           />
           <div className='flex items-center gap-4'>
             <Button variant='contained' type='submit'>
-              Submit
+              Save
             </Button>
-            <Button variant='outlined' color='error' type='reset' onClick={() => handleReset()}>
+            <Button variant='outlined' color='error' type='reset' onClick={handleReset}>
               Cancel
             </Button>
           </div>
@@ -273,4 +272,4 @@ const AddUserDrawer = props => {
   )
 }
 
-export default AddUserDrawer
+export default UpdateUserDrawer

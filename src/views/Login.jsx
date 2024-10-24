@@ -6,6 +6,7 @@ import { useState } from 'react'
 // Next Imports
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react';
 
 // MUI Imports
 import Typography from '@mui/material/Typography'

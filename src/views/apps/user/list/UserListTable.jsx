@@ -6,6 +6,8 @@ import { useEffect, useState, useMemo } from 'react'
 // Next Imports
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { NextResponse } from 'next/server';
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -39,6 +41,8 @@ import {
 // Component Imports
 import TableFilters from './TableFilters'
 import AddUserDrawer from './AddUserDrawer'
+import UpdateUserDrawer from './UpdateUserDrawer'
+import ViewUserDrawer from './ViewUserDrawer'
 import OptionMenu from '@core/components/option-menu'
 import CustomAvatar from '@core/components/mui/Avatar'
 
@@ -48,6 +52,7 @@ import { getLocalizedUrl } from '@/utils/i18n'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
+import axios from 'axios'
 
 // Styled Components
 const Icon = styled('i')({})
@@ -105,13 +110,82 @@ const columnHelper = createColumnHelper()
 const UserListTable = ({ tableData }) => {
   // States
   const [addUserOpen, setAddUserOpen] = useState(false)
+  const [editUserOpen, setEditUserOpen] = useState(false)
+  const [viewUserOpen, setViewUserOpen] = useState(false)
+  const [updateUserOpen, setUpdateUserOpen] = useState(false)
   const [rowSelection, setRowSelection] = useState({})
-  const [data, setData] = useState(...[tableData])
-  const [filteredData, setFilteredData] = useState(data)
+  const [data, setData] = useState([])
+  const [filteredData, setFilteredData] = useState()
   const [globalFilter, setGlobalFilter] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [openUpdateDrawer, setOpenUpdateDrawer] = useState(false);
+  const [openDeleteDrawer, setOpenDeleteDrawer] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [openViewDrawer, setOpenViewDrawer] = useState(false);
+  const [viewUserId, setViewUserId] = useState(null);
 
   // Hooks
-  const { lang: locale } = useParams()
+  const { lang: locale } = useParams() 
+  const { data: session} = useSession()
+
+  // Fetch users data
+  useEffect(() => {
+      const fetchAllUsers = async () => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/users/AllUsers`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+               token: `${session?.user?.token}`,
+            },
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            return NextResponse.json({ error: errorData.message || 'Failed to fetch users' }, { status: response.status });
+          }
+
+          const data = await response.json();
+          setData(data.data);
+          // setFilteredData(data); 
+          setLoading(false);
+
+          return NextResponse.json(data);
+        } catch (error) {
+          return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+      }
+      fetchAllUsers();
+    }, [session?.user]);
+
+    const deleteUser = async () => {    
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const id = searchParams.get('id');
+        console.log('id:', id);
+    
+        if (!id) {
+          return NextResponse.json({ error: 'No user ID provided' }, { status: 400 });
+        }
+    
+        const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/users/delete/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+             token: `${session?.user?.token}`, 
+          },
+        });
+        console.log('Response:', response.data);
+    
+        if (!response.ok) {
+          const errorData = await response.json();
+          return NextResponse.json({ error: errorData.message || 'Failed to delete user' }, { status: response.status });
+        }
+    
+        return NextResponse.json(response.data, { status: 200 });
+      } catch (error) {
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      }
+    };
 
 
   const columns = useMemo(
@@ -138,96 +212,102 @@ const UserListTable = ({ tableData }) => {
           />
         )
       },
-      columnHelper.accessor('fullName', {
-        header: 'User',
-        cell: ({ row }) => (
-          <div className='flex items-center gap-3'>
-            {getAvatar({ avatar: row.original.avatar, fullName: row.original.fullName })}
-            <div className='flex flex-col'>
-              <Typography color='text.primary' className='font-medium'>
-                {row.original.fullName}
-              </Typography>
-              <Typography variant='body2'>{row.original.username}</Typography>
-            </div>
-          </div>
-        )
+      columnHelper.accessor('uniqueID', {
+        header: 'Employee ID',
+        cell: ({ row }) => <Typography>{row.original.uniqueID ? row.original.uniqueID : 'N/A'}</Typography>
+      }),
+      columnHelper.accessor('name', {
+        header: 'Name',
+        cell: ({ row }) => <Typography>{row.original.name}</Typography>
+      }),
+      columnHelper.accessor('roleName', {
+        header: 'Role',
+        cell: ({ row }) => <Typography>{row.original.roleName}</Typography>
       }),
       columnHelper.accessor('email', {
-        header: 'Email',
-        cell: ({ row }) => <Typography>{row.original.email}</Typography>
-      }),
-      columnHelper.accessor('role', {
-        header: 'Role',
-        cell: ({ row }) => (
-          <div className='flex items-center gap-2'>
-            <Icon
-              className={classnames('text-[22px]', userRoleObj[row.original.role].icon)}
-              sx={{ color: `var(--mui-palette-${userRoleObj[row.original.role].color}-main)` }}
-            />
-            <Typography className='capitalize' color='text.primary'>
-              {row.original.role}
-            </Typography>
-          </div>
-        )
-      }),
-      columnHelper.accessor('currentPlan', {
-        header: 'Plan',
+        header: 'Email Address',
         cell: ({ row }) => (
           <Typography className='capitalize' color='text.primary'>
-            {row.original.currentPlan}
+            {row.original.email}
           </Typography>
         )
       }),
-      columnHelper.accessor('status', {
+      columnHelper.accessor('company.companyName', {
+        header: 'Company',
+        cell: ({ row }) => (
+          <Typography className='capitalize' color='text.primary'>
+            {row.original.company ? row.original.company.companyName : 'N/A'}
+          </Typography>
+        )
+      }),
+      columnHelper.accessor('department', {
+        header: 'Department',
+        cell: ({ row }) => (
+          <Typography className='capitalize' color='text.primary'>
+            {row.original.department ? row.original.department : 'N/A'}
+          </Typography>
+        )
+      }),
+      columnHelper.accessor('isActive', {
         header: 'Status',
         cell: ({ row }) => (
-          <div className='flex items-center gap-3'>
-            <Chip
-              variant='tonal'
-              label={row.original.status}
-              size='small'
-              color={userStatusObj[row.original.status]}
-              className='capitalize'
-            />
-          </div>
+          <Typography className='capitalize' color='text.primary'>
+            {row.original.isActive}
+          </Typography>
         )
       }),
       columnHelper.accessor('action', {
         header: 'Action',
         cell: ({ row }) => (
           <div className='flex items-center gap-0.5'>
-            <IconButton size='small' onClick={() => setData(data?.filter(product => product.id !== row.original.id))}>
+            {/* Delete button */}
+            <IconButton
+              size='small'
+              // onClick={deleteUser(id)}
+              onClick={() => setData((prevData) => prevData?.filter(product => product.id !== row.original.id))}
+            >
               <i className='ri-delete-bin-7-line text-textSecondary' />
             </IconButton>
-            <IconButton size='small'>
-              <Link href={getLocalizedUrl('/apps/user/view', locale)} className='flex'>
-                <i className='ri-eye-line text-textSecondary' />
-              </Link>
+            {/* View button */}
+            <IconButton
+              size='small'
+              onClick={() => {
+                setOpenViewDrawer(true); 
+                setViewUserId(row.original.id); 
+              }}>
+            <i className='ri-eye-line text-textSecondary' />
             </IconButton>
+            {/* Edit button */}
+            <IconButton
+              size='small'
+              onClick={() => {
+                setOpenUpdateDrawer(true); 
+                setUpdateUserOpen(row.original.id); 
+              }}>
+            <i className='ri-edit-box-line text-textSecondary' />
+            </IconButton>
+            {/* Option menu */}
             <OptionMenu
               iconClassName='text-textSecondary'
               options={[
                 {
                   text: 'Download',
-                  icon: 'ri-download-line'
+                  icon: 'ri-download-box-line',
                 },
-                {
-                  text: 'Edit',
-                  icon: 'ri-edit-box-line'
-                }
               ]}
             />
           </div>
         ),
-        enableSorting: false
-      })
+        enableSorting: false,
+      })     
+      
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, filteredData]
+    [data]
   )
 
   const table = useReactTable({
-    data: filteredData,
+    data,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -242,7 +322,7 @@ const UserListTable = ({ tableData }) => {
       }
     },
     enableRowSelection: true, //enable row selection for all rows
-    // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
+    // enableRowSelection: row => row.original.age > 18, 
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
@@ -273,7 +353,6 @@ const UserListTable = ({ tableData }) => {
     <>
       <Card>
         <CardHeader title='Filters' className='pbe-4' />
-        <TableFilters setData={setFilteredData} tableData={data} />
         <Divider />
         <div className='flex justify-between gap-4 p-5 flex-col items-start sm:flex-row sm:items-center'>
           <Button
@@ -372,6 +451,16 @@ const UserListTable = ({ tableData }) => {
         handleClose={() => setAddUserOpen(!addUserOpen)}
         userData={data}
         setData={setData}
+      />
+      <ViewUserDrawer
+        open={openViewDrawer}
+        handleClose={() => setViewUserOpen(!viewUserOpen)}
+        userId={viewUserId}
+      />
+      <UpdateUserDrawer
+        open={openUpdateDrawer}
+        handleClose={() => setUpdateUserOpen(!editUserOpen)}
+        user={userData}
       />
     </>
   )
