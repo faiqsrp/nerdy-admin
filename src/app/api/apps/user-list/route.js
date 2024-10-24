@@ -41,28 +41,3 @@ export async function fetchAllUsers() {
   }
 }
 
-export async function deleteUser (id) {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/users/delete/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-         token: `${session?.user?.token}`,
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json({ error: errorData.message || 'Failed to delete user' }, { status: response.status });
-    }
-
-    const result = await response.json();
-    console.log('User deleted successfully:', result);
-
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
-};
-

@@ -37,7 +37,6 @@ const AddUserDrawer = props => {
   // Props
   const { open, handleClose, userData, setData } = props
 
-  console.log(handleClose, "add")
   // States
   const [formData, setFormData] = useState(initialData)
   const [loading, setLoading] = useState(true)
