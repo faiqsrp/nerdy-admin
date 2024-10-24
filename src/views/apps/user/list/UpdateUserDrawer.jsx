@@ -1,4 +1,4 @@
-"use client"; 
+'use client'
 
 // React Imports
 import { useState } from 'react'
@@ -44,7 +44,8 @@ const UpdateUserDrawer = props => {
   const [loading, setLoading] = useState(true)
 
   // Hooks
-  const { data: session} = useSession()
+  const { data: session } = useSession()
+
   const {
     control,
     reset: resetForm,
@@ -56,20 +57,23 @@ const UpdateUserDrawer = props => {
 
   const createUser = async newUser => {
     setLoading(true)
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/users/update/${id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          token: `${session?.user?.token}`,
+          token: `${session?.user?.token}`
         },
-        body: JSON.stringify(newUser),
+        body: JSON.stringify(newUser)
       })
 
       if (!response.ok) {
         const errorData = await response.json()
+
         console.error('Error creating user:', errorData.message || 'Failed to create user')
         setLoading(false)
+
         return
       }
 
@@ -97,10 +101,10 @@ const UpdateUserDrawer = props => {
       department: data.department,
       country: data.country,
       employeeId: data.employeeId
-    }  
+    }
+
     createUser(newUser)
   }
-    
 
   const handleReset = () => {
     handleClose()
@@ -124,7 +128,7 @@ const UpdateUserDrawer = props => {
       <Divider />
       <div className='p-5'>
         <form onSubmit={handleSubmit(data => onSubmit(data))} className='flex flex-col gap-5'>
-        <Controller
+          <Controller
             name='name'
             control={control}
             rules={{ required: true }}
@@ -139,7 +143,7 @@ const UpdateUserDrawer = props => {
               />
             )}
           />
-        <Controller
+          <Controller
             name='employeeId'
             control={control}
             rules={{ required: true }}
@@ -168,7 +172,7 @@ const UpdateUserDrawer = props => {
               />
             )}
           />
-           <Controller
+          <Controller
             name='company'
             control={control}
             rules={{ required: true }}

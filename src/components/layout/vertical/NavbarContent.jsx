@@ -34,6 +34,12 @@ const shortcuts = [
     subtitle: 'Manage Users'
   },
   {
+    url: '/apps/company',
+    icon: 'ri-computer-line',
+    title: 'Company',
+    subtitle: 'Manage Company'
+  },
+  {
     url: '/apps/roles',
     icon: 'ri-computer-line',
     title: 'Role Management',

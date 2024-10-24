@@ -110,7 +110,7 @@ const userStatusObj = {
 // Column Definitions
 const columnHelper = createColumnHelper()
 
-const UserListTable = ({ tableData }) => {
+const CompanyListTable = ({ tableData }) => {
   // States
   const [addUserOpen, setAddUserOpen] = useState(false)
   const [editUserOpen, setEditUserOpen] = useState(false)
@@ -464,4 +464,4 @@ const UserListTable = ({ tableData }) => {
   )
 }
 
-export default UserListTable
+export default CompanyListTable

@@ -97,4 +97,4 @@ const ViewUserDrawer = ({ open, handleClose, userId }) => {
   )
 }
 
-export default ViewUserDrawer
+export default ViewCompanyDrawer
